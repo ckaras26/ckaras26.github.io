@@ -1,0 +1,65 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2709
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 Times-Roman;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+
+\f0\fs24 \cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 .bs-icon \{\
+  --bs-icon-size: .75rem;\
+  display: flex;\
+  flex-shrink: 0;\
+  justify-content: center;\
+  align-items: center;\
+  font-size: var(--bs-icon-size);\
+  width: calc(var(--bs-icon-size) * 2);\
+  height: calc(var(--bs-icon-size) * 2);\
+  color: var(--bs-primary);\
+\}\
+\
+.bs-icon-xs \{\
+  --bs-icon-size: 1rem;\
+  width: calc(var(--bs-icon-size) * 1.5);\
+  height: calc(var(--bs-icon-size) * 1.5);\
+\}\
+\
+.bs-icon-sm \{\
+  --bs-icon-size: 1rem;\
+\}\
+\
+.bs-icon-md \{\
+  --bs-icon-size: 1.5rem;\
+\}\
+\
+.bs-icon-lg \{\
+  --bs-icon-size: 2rem;\
+\}\
+\
+.bs-icon-xl \{\
+  --bs-icon-size: 2.5rem;\
+\}\
+\
+.bs-icon.bs-icon-primary \{\
+  color: var(--bs-white);\
+  background: var(--bs-primary);\
+\}\
+\
+.bs-icon.bs-icon-primary-light \{\
+  color: var(--bs-primary);\
+  background: rgba(var(--bs-primary-rgb), .2);\
+\}\
+\
+.bs-icon.bs-icon-semi-white \{\
+  color: var(--bs-primary);\
+  background: rgba(255, 255, 255, .5);\
+\}\
+\
+.bs-icon.bs-icon-rounded \{\
+  border-radius: .5rem;\
+\}\
+\
+.bs-icon.bs-icon-circle \{\
+  border-radius: 50%;\
+\}}
