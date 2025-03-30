@@ -1,0 +1,1677 @@
+---
+title: "NHIS Cleaning"
+author: "Cicely Karas"
+date: "2024-09-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#Load packages and import dataset
+
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(dplyr)
+library(ggplot2)
+adult23 <- read_csv("adult23.csv")
+```
+
+```{r}
+#Recode variable names 
+
+clean_adult <- clean_adult %>% 
+  filter(as.numeric(AGEP_A) <= 64)
+
+clean_adult <- adult23 %>% rename(
+  "Sexual Orientation" = ORIENT_A, 
+  "Delayed Dental Care" = DENDL12M_A,
+  "Delayed Medical Care" = MEDDL12M_A,
+  "Delayed Counseling/Therapy" = MHTHDLY_A,
+  "Delayed Prescription" = RXDL12M_A,
+  "Did Not Get Dental Care" = DENNG12M_A,
+  "Did Not Get Medical Care" = MEDNG12M_A,
+  "Did Not Get Counseling/Therapy" = MHTHND_A,
+  "Did Not Get Prescription" = RXDG12M_A,
+  "Lack of Transportation" = TRANSPOR_A,
+  "Usual Place of Care" = USUALPL_A,
+  "Kind of Place of Care" = USPLKIND_A,
+  "Ever Had COVID" = EVERCOVD_A,
+  "COVID Symptoms for 3 Months or Longer" = LONGCOVD1_A,
+  "COVID Symptoms Currently" = SYMPNOW1_A,
+  "Long-term COVID Symptoms Affect Daily Activities" = LCVDACT_A,
+  "Trouble Paying or Couldn't Pay Medical Bills" = PAYBLL12M_A,
+  "Currently Unable to Pay Medical Bills" = PAYNOBLLNW_A,
+  "Worried About Being Unable to Pay Medical Bills After an Accident" = PAYWORRY_A,
+  "Race" = RACEALLP_A, 
+  "Hispanic" = HISPALLP_A, 
+  "Marital Status" = MARSTAT_A, 
+  "Health Status" = PHSTAT_A,
+  "Education" = PRTNREDUCP_A,
+  "Health Insurance" = 
+)
+
+#Recode variables categories 
+
+clean_adult <- clean_adult %>%
+  mutate(`Sexual Orientation` = recode(`Sexual Orientation`, 
+                                       `1` = "Gay/Lesbian", 
+                                       `2` = "Straight", 
+                                       `3` = "Bisexual", 
+                                       `4` = "Something else", 
+                                       `5` = "I don't know the answer", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  filter(!is.na(`Sexual Orientation`) & 
+         `Sexual Orientation` != "NA" & 
+         `Sexual Orientation` != "Refused") %>%
+  
+  mutate(`Delayed Dental Care` = recode(`Delayed Dental Care`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Delayed Medical Care` = recode(`Delayed Medical Care`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Delayed Counseling/Therapy` = recode(`Delayed Counseling/Therapy`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Delayed Prescription` = recode(`Delayed Prescription`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Did Not Get Dental Care` = recode(`Did Not Get Dental Care`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Did Not Get Medical Care` = recode(`Did Not Get Medical Care`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Did Not Get Counseling/Therapy` = recode(`Did Not Get Counseling/Therapy`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Did Not Get Prescription` = recode(`Did Not Get Prescription`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Lack of Transportation` = recode(`Lack of Transportation`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Usual Place of Care` = recode(`Usual Place of Care`, 
+                                       `1` = "Yes", 
+                                       `2` = "There is NO Place", 
+                                       `3` = "There is More Than One Place",
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Kind of Place of Care` = recode(`Kind of Place of Care`, 
+                                       `1` = "A doctor's office or health center", 
+                                       `2` = "Urgent care center or clinic in a drug store or grocery store", 
+                                       `3` = "Hospital emergency room",
+                                       `4` = "A VA Medical Center or VA outpatient clinic",
+                                       `5` = "Some other place",
+                                       `6` = "Does not go to one place most often",
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Ever Had COVID` = recode(`Ever Had COVID`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`COVID Symptoms for 3 Months or Longer` = recode(`COVID Symptoms for 3 Months or Longer`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`COVID Symptoms Currently` = recode(`COVID Symptoms Currently`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Long-term COVID Symptoms Affect Daily Activities` = recode(`Long-term COVID Symptoms Affect Daily Activities`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Trouble Paying or Couldn't Pay Medical Bills` = recode(`Trouble Paying or Couldn't Pay Medical Bills`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Currently Unable to Pay Medical Bills` = recode(`Currently Unable to Pay Medical Bills`, 
+                                       `1` = "Yes", 
+                                       `2` = "No", 
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  
+  mutate(`Worried About Being Unable to Pay Medical Bills After an Accident` = recode(`Worried About Being Unable to Pay Medical Bills After an Accident`, 
+                                       `1` = "Very worried", 
+                                       `2` = "Somewhat worried", 
+                                       `3` = "Not at all worried",
+                                       `7` = "Refused", 
+                                       `9` = "Don't know",
+                                        .default = "NA")) %>%
+  mutate(`Race` = recode(`Race`, 
+                         `1` = "White only", 
+                         `2` = "Black only", 
+                         `3` = "Asian only", 
+                         `4` = "AIAN only",
+                         `5` = "AIAN and any other group", 
+                         `6` = "Other signle and multiple races",
+                         `7` = "Refused", 
+                         `8` = "Not Ascertained",
+                         `9` = "Don't know",
+                          .default = "NA")) %>%
+  
+  mutate(`Hispanic` = recode(`Hispanic`, 
+                         `1` = "Hispanic", 
+                         `2` = "Non-Hispanic White only", 
+                         `3` = "Non-Hispanic Black only", 
+                         `4` = "Non-Hispanic Asian only",
+                         `5` = "Non-Hispanic AIAN only", 
+                         `6` = "Non-Hispanic AIAN and any other group",
+                         `7` = "Other single and multiple races", 
+                         `97` = "Refused",
+                         `98` = "Not Ascertained",
+                         `99` = "Don't know",
+                          .default = "NA")) %>%
+  
+  
+  mutate(`Marital Status` = recode(`Marital Status`,
+                         `1` = "Married", 
+                         `2` = "Widowed",
+                         `3` = "Divorced", 
+                         `4` = "Seperated",
+                         `5` = "Never Married", 
+                         `7` = "Refused",
+                         `9` = "Don't Know",
+                         .default = "NA")) %>%
+  
+  mutate(`Health Status` = recode(`Health Status`,
+                         `1` = "Excellent", 
+                         `2` = "Very Good",
+                         `3` = "Good", 
+                         `4` = "Fair",
+                         `5` = "Poor", 
+                         `7` = "Refused",
+                         `9` = "Don't Know"
+                         ))
+  
+  
+```
+
+```{r}
+#Creating composite variables
+#If any of the following variables is answered "yes", the composite variable becomes "yes"
+#Any answers of "no" or don't know" or "refused" are counted as "no" 
+
+#Delayed due to cost
+clean_adult$`Delayed care due to cost` <- ifelse(
+  clean_adult$`Delayed Dental Care` == "Yes" |
+  clean_adult$`Delayed Medical Care` == "Yes" |
+  clean_adult$`Delayed Counseling/Therapy` == "Yes" |
+  clean_adult$`Delayed Prescription` == "Yes",
+  "Yes",
+  "No"
+)
+
+table(clean_adult$`Delayed care due to cost`)
+
+#Did not receive services due to cost 
+clean_adult$`Did not receive specific services because of the cost` <- ifelse(
+  clean_adult$`Did Not Get Dental Care` == "Yes" |
+  clean_adult$`Did Not Get Medical Care` == "Yes" |
+  clean_adult$`Did Not Get Counseling/Therapy` == "Yes" |
+  clean_adult$`Did Not Get Prescription` == "Yes",
+  "Yes",
+  "No"
+)
+
+table(clean_adult$`Did not receive specific services because of the cost`)
+
+#Delayed or did not receive due to non-cost reasons
+clean_adult$`Delayed or did not receive for non-cost reasons` <- ifelse(
+  clean_adult$`Lack of Transportation` == "Yes",
+  "Yes",
+  "No"
+)
+
+table(clean_adult$`Delayed or did not receive for non-cost reasons`)
+
+#No usual source of care
+#If the adult answers "There is NO Place" or "Hospital emergency room" then the composite variables becomes "Yes"
+clean_adult$`No usual source of care` <- ifelse(
+  clean_adult$`Usual Place of Care` == "There is NO Place" |
+  clean_adult$`Kind of Place of Care` == "Hospital emergency room",
+  "Yes",
+  "No"
+)
+
+table(clean_adult$`No usual source of care`)
+#table(clean_adult$`Usual Place of Care`)
+#table(clean_adult$`Kind of Place of Care`)
+
+
+#Trouble paying medical bills
+clean_adult$`Trouble paying medical bills` <- ifelse(
+  clean_adult$`Trouble Paying or Couldn't Pay Medical Bills` == "Yes" |
+  clean_adult$`Currently Unable to Pay Medical Bills` == "Yes",
+  "Yes",
+  "No"
+)
+
+#replace NAs with No
+clean_adult$`Trouble paying medical bills`[is.na(clean_adult$`Trouble paying medical bills`)] <- "No"
+
+table(clean_adult$`Trouble paying medical bills`)
+
+table(clean_adult$`Trouble Paying or Couldn't Pay Medical Bills`)
+table(clean_adult$`Currently Unable to Pay Medical Bills`)
+```
+
+```{r}
+#Exploratory Data Analysis
+```
+
+```{r}
+#Delayed care bar graph 
+#Switch between position = "fill" and "dodge" to see stacked bar vs. side by side bar
+
+
+proportion_table <- prop.table(table(clean_adult$`Delayed care due to cost`, clean_adult$`Sexual Orientation`))
+
+proportion_df <- as.data.frame(proportion_table)
+
+colnames(proportion_df) <- c("Delayed Care Due to Cost", "Sexual Orientation", "Proportion")
+
+proportion_df
+
+
+clean_adult_filtered <- clean_adult %>%
+  filter(!is.na(`Sexual Orientation`) & !is.na(`Delayed care due to cost`))
+
+ggplot(clean_adult_filtered, aes(x = `Sexual Orientation`, fill = `Delayed care due to cost`)) +
+  geom_bar(position = "fill") +
+  labs(y = "Proportion", x = "Sexual Orientation", fill = "Delayed Care Due to Cost") +
+  ggtitle("Delayed Care Due to Cost Based on Sexual Orientation") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("#FF9999", "#99CCFF", "#FFFF99", "#CCFF99"))
+
+```
+```{r}
+#Did not receive care bar graph 
+
+proportion_table <- prop.table(table(clean_adult$`Did not receive specific services because of the cost`, clean_adult$`Sexual Orientation`))
+
+proportion_df <- as.data.frame(proportion_table)
+
+colnames(proportion_df) <- c("Did Not Receive Services Due to the Cost", "Sexual Orientation", "Proportion")
+
+proportion_df
+
+
+ggplot(clean_adult_filtered, aes(x = `Sexual Orientation`, fill = `Did not receive specific services because of the cost`)) +
+  geom_bar(position = "fill") +
+  labs(y = "Proportion", x = "Sexual Orientation", fill = "Did Not Receive Services Due to the Cost") +
+  ggtitle("Did Not Receive Services Due to the Cost Based on Sexual Orientation") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("#FF9999", "#99CCFF", "#FFFF99", "#CCFF99"))
+
+```
+```{r}
+#Delayed or did not receive for non-cost reasons bar graph 
+
+prop.table(table(clean_adult$`Delayed or did not receive for non-cost reasons`, clean_adult$`Sexual Orientation`))
+
+ggplot(clean_adult_filtered, aes(x = `Sexual Orientation`, fill = `Delayed or did not receive for non-cost reasons`)) +
+  geom_bar(position = "fill") +
+  labs(y = "Proportion", x = "Sexual Orientation", fill = "Delayed/Did Not Receive for Non-Cost Reasons") +
+  ggtitle("Delayed/Did Not Receive for Non-Cost Reasons Based on Sexual Orientation") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("#FF9999", "#99CCFF", "#FFFF99", "#CCFF99"))
+```
+```{r}
+#No usual source of care bar graph 
+
+prop.table(table(clean_adult$`No usual source of care`, clean_adult$`Sexual Orientation`))
+
+ggplot(clean_adult_filtered, aes(x = `Sexual Orientation`, fill = `No usual source of care`)) +
+  geom_bar(position = "fill") +
+  labs(y = "Proportion", x = "Sexual Orientation", fill = "No Usual Source of Care") +
+  ggtitle("No Usual Source of Care Based on Sexual Orientation") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("#FF9999", "#99CCFF", "#FFFF99", "#CCFF99"))
+```
+
+
+```{r}
+#Medical bills bar graph 
+
+clean_adult_filtered <- clean_adult %>%
+  filter(!is.na(`Sexual Orientation`) & !is.na(`Trouble paying medical bills`))
+
+prop.table(table(clean_adult$`Trouble paying medical bills`, clean_adult$`Sexual Orientation`))
+table(clean_adult$`Trouble paying medical bills`)
+
+ggplot(clean_adult_filtered, aes(x = `Sexual Orientation`, fill = `Trouble paying medical bills`)) +
+  geom_bar(position = "fill") +
+  labs(y = "Proportion", x = "Sexual Orientation", fill = "Trouble Paying Medical Bills") +
+  ggtitle("Trouble Paying Medical Bills Based on Sexual Orientation") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("#FF9999", "#99CCFF", "#FFFF99", "#CCFF99"))
+```
+
+
+```{r}
+#Sexual orientation bar graph 
+
+table(clean_adult$`Sexual Orientation`)
+
+clean_adult %>%
+  count(`Sexual Orientation`) %>%
+  ggplot(aes(x = `Sexual Orientation`, y = n, fill = `Sexual Orientation`)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Sexual Orientation", y = "Frequency", title = "Frequency of Sexual Orientation Categories")+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+#Delayed dental care bar graph
+
+table(clean_adult$`Delayed Dental Care`)
+
+clean_adult %>%
+  count(`Delayed Dental Care`) %>%
+  ggplot(aes(x = `Delayed Dental Care`, y = n, fill = `Delayed Dental Care`)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Response", y = "Frequency", title = "Delayed Dental Care in the Past 12 Months Because of Cost")+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+```{r}
+#Ever Had COVID bar graph 
+
+table(clean_adult$`Ever Had COVID`)
+
+prop_table <- prop.table(table(clean_adult$`Sexual Orientation`, clean_adult$`Ever Had COVID`), margin = 1)
+print(prop_table)
+table(clean_adult$`Sexual Orientation`, clean_adult$`Ever Had COVID`)
+
+prop_df <- as.data.frame(prop_table)
+colnames(prop_df) <- c("Sexual Orientation", "Ever Had COVID", "Proportion")
+
+ggplot(prop_df, aes(x = `Sexual Orientation`, y = Proportion, fill = `Ever Had COVID`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "COVID by Sexual Orientation", 
+       x = "Sexual Orientation", 
+       y = "Proportion") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r}
+#COVID Symptoms for 3 Months or Longer bar graph 
+
+table(clean_adult$`COVID Symptoms for 3 Months or Longer`)
+
+prop_table <- prop.table(table(clean_adult$`Sexual Orientation`, clean_adult$`COVID Symptoms for 3 Months or Longer`), margin = 1)
+print(prop_table)
+table(clean_adult$`Sexual Orientation`, clean_adult$`COVID Symptoms for 3 Months or Longer`)
+
+prop_df <- as.data.frame(prop_table)
+colnames(prop_df) <- c("Sexual Orientation", "COVID Symptoms for 3 Months or Longer", "Proportion")
+
+ggplot(prop_df, aes(x = `Sexual Orientation`, y = Proportion, fill = `COVID Symptoms for 3 Months or Longer`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "COVID 3 Months or Longer by Sexual Orientation", 
+       x = "Sexual Orientation", 
+       y = "Proportion") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r}
+#COVID Symptoms Currently bar graph 
+#Small sample size for this question so the proportions are likely skewed 
+
+table(clean_adult$`COVID Symptoms Currently`)
+
+prop_table <- prop.table(table(clean_adult$`Sexual Orientation`, clean_adult$`COVID Symptoms Currently`), margin = 1)
+print(prop_table)
+
+prop_df <- as.data.frame(prop_table)
+colnames(prop_df) <- c("Sexual Orientation", "COVID Symptoms Currently", "Proportion")
+
+ggplot(prop_df, aes(x = `Sexual Orientation`, y = Proportion, fill = `COVID Symptoms Currently`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "COVID Symptoms Currently by Sexual Orientation", 
+       x = "Sexual Orientation", 
+       y = "Proportion") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r}
+#Long COVID Affecting Daily Life bar graph 
+#Small sample size for this question too
+
+table(clean_adult$`Long-term COVID Symptoms Affect Daily Activities`)
+
+prop_table <- prop.table(table(clean_adult$`Sexual Orientation`, clean_adult$`Long-term COVID Symptoms Affect Daily Activities`), margin = 1)
+print(prop_table)
+
+prop_df <- as.data.frame(prop_table)
+colnames(prop_df) <- c("Sexual Orientation", "Long-term COVID Symptoms Affect Daily Activities", "Proportion")
+
+ggplot(prop_df, aes(x = `Sexual Orientation`, y = Proportion, fill = `Long-term COVID Symptoms Affect Daily Activities`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Long COVID Affecting Daily Life by Sexual Orientation", 
+       x = "Sexual Orientation", 
+       y = "Proportion") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+#Delayed Dental Care bar graph
+
+table(clean_adult$`Delayed Dental Care`)
+
+prop_table <- prop.table(table(clean_adult$`Sexual Orientation`, clean_adult$`Delayed Dental Care`), margin = 1)
+print(prop_table)
+
+#large chi square value and low p-value indicate that the relationship is statistically significant
+chisq_test <- chisq.test(table(clean_adult$`Sexual Orientation`, clean_adult$`Delayed Dental Care`))
+chisq_test
+
+prop_df <- as.data.frame(prop_table)
+colnames(prop_df) <- c("Sexual Orientation", "Delayed Dental Care", "Proportion")
+
+ggplot(prop_df, aes(x = `Sexual Orientation`, y = Proportion, fill = `Delayed Dental Care`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Delayed Dental Care by Sexual Orientation", 
+       x = "Delayed Dental Care", 
+       y = "Proportion") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r}
+#Modeling
+```
+
+```{r}
+#Multinomial logistic regression model
+
+#Load packages
+library(nnet)
+library(broom)
+
+
+clean_adult <- clean_adult %>% filter(as.numeric(AGEP_A) <= 64)
+clean_adult <- clean_adult %>% mutate_all(as.factor)
+
+#Setting straight as the baseline 
+clean_adult$`Sexual Orientation` <- relevel(clean_adult$`Sexual Orientation`, ref = "Straight")
+
+#The model
+model <- multinom(`Sexual Orientation` ~ `Delayed care due to cost` + `Did not receive specific services because of the cost` + `Delayed or did not receive for non-cost reasons` + `No usual source of care` + `Trouble paying medical bills`, data = clean_adult)
+summary(model)
+
+z <- summary(model)$coefficients/summary(model)$standard.errors
+z
+
+p <- (1 - pnorm(abs(z), 0, 1)) * 2
+p
+
+tidy_model <- tidy(model, conf.int = TRUE)
+tidy_model
+
+
+#Interpretation 
+#Straight is the baseline for sexual orientation
+#No is the baseline for the predictor variables
+#The intercept is the log odds of belonging to a certain category compared to the baseline category when all other predictor variables are at their baseline levels
+#The intercept is the log odds of being in each sexual orientation category when "Delayed care due to cost" is "No"
+#The coefficient represents the change in the log odds of being in each sexual orientation category (compared to the straight baseline) when "delayed care due to cost" is "Yes" holding all other variables constant.
+#The coefficient 0.21878202 shows that when "delayed care due to cost" is "Yes" the log odds of identifying as bisexual increase by 0.21878202, compared to when it is "No"
+#The log odds of being bisexual vs. straight increase by 0.21878202 when "delayed care due to cost" "Yes"
+```
+```{r}
+#Predicted probabilities 
+head(pp <- fitted(model))
+
+```
+```{r}
+#Table Creation 
+```
+
+```{r}
+#Prevalence table (table 2)
+
+#Calculate the prevalence of "Yes" responses for "Delayed care due to cost" 
+prevalence_delayed_care <- clean_adult %>%
+  filter(!is.na(`Delayed care due to cost`)) %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(
+    Count_Yes = sum(`Delayed care due to cost` == "Yes"),
+    Total = n(),
+    Prevalence = (Count_Yes / Total) * 100
+  )
+
+prevalence_delayed_care
+
+#Calculate the prevalence of "Yes" responses for "Did not receive specific services because of the cost" 
+prevalence_didnotreceive_care <- clean_adult %>%
+  filter(!is.na(`Did not receive specific services because of the cost`)) %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(
+    Count_Yes = sum(`Did not receive specific services because of the cost` == "Yes"),
+    Total = n(),
+    Prevalence = (Count_Yes / Total) * 100
+  )
+
+prevalence_didnotreceive_care
+
+#Calculate the prevalence of "Yes" responses for `Delayed or did not receive for non-cost reasons` 
+prevalence_noncost <- clean_adult %>%
+  filter(!is.na(`Delayed or did not receive for non-cost reasons`)) %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(
+    Count_Yes = sum(`Delayed or did not receive for non-cost reasons` == "Yes"),
+    Total = n(),
+    Prevalence = (Count_Yes / Total) * 100
+  )
+
+prevalence_noncost
+
+#Calculate the prevalence of "Yes" responses for `No usual source of care` 
+prevalence_no_source_care <- clean_adult %>%
+  filter(!is.na(`No usual source of care`)) %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(
+    Count_Yes = sum(`No usual source of care` == "Yes"),
+    Total = n(),
+    Prevalence = (Count_Yes / Total) * 100
+  )
+
+prevalence_no_source_care
+
+#Calculate the prevalence of "Yes" responses for `Trouble paying medical bills`
+prevalence_bills <- clean_adult %>%
+  filter(!is.na(`Trouble paying medical bills`)) %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(
+    Count_Yes = sum(`Trouble paying medical bills` == "Yes"),
+    Total = n(),
+    Prevalence = (Count_Yes / Total) * 100
+  )
+
+prevalence_bills
+
+```
+```{r}
+#Descriptive Estimates (Table 1)
+
+general_prevalence <- clean_adult %>%
+  summarise(
+    Delayed_Care = sum(`Delayed care due to cost` == "Yes", na.rm = TRUE) / sum(!is.na(`Delayed care due to cost`)) * 100,
+    Specific_Services = sum(`Did not receive specific services because of the cost` == "Yes", na.rm = TRUE) / sum(!is.na(`Did not receive specific services because of the cost`)) * 100,
+    Non_Cost_Delay = sum(`Delayed or did not receive for non-cost reasons` == "Yes", na.rm = TRUE) / sum(!is.na(`Delayed or did not receive for non-cost reasons`)) * 100,
+    No_Usual_Source = sum(`No usual source of care` == "Yes", na.rm = TRUE) / sum(!is.na(`No usual source of care`)) * 100,
+    Trouble_Paying = sum(`Trouble paying medical bills` == "Yes", na.rm = TRUE) / sum(!is.na(`Trouble paying medical bills`)) * 100
+  )
+
+general_prevalence
+
+#Sexual orientation
+sexual_orientation_distribution <- clean_adult %>%
+  filter(!is.na(`Sexual Orientation`)) %>%  
+  group_by(`Sexual Orientation`) %>%
+  summarise(
+    Count = n()
+  ) %>%
+  mutate(
+    Percentage = (Count / sum(Count)) * 100
+  )
+
+sexual_orientation_distribution
+
+#Age
+age_distribution <- clean_adult %>%
+  mutate(AGEP_A = as.numeric(AGEP_A)) %>% 
+  filter(!is.na(AGEP_A) & AGEP_A <= 64) %>% 
+  mutate(Age_Group = case_when(
+    AGEP_A >= 18 & AGEP_A <= 24 ~ "18-24",
+    AGEP_A >= 25 & AGEP_A <= 44 ~ "25-44",
+    AGEP_A >= 45 & AGEP_A <= 64 ~ "45-64",
+    TRUE ~ NA_character_
+  )) %>%
+  filter(!is.na(Age_Group)) %>%  # Exclude rows with NA in Age_Group
+  group_by(Age_Group) %>%
+  summarise(
+    Count = n()
+  ) %>%
+  mutate(
+    Percentage = (Count / sum(Count)) * 100
+  )
+
+age_distribution
+
+#Race/ethnicity
+race_summary <- clean_adult %>%
+  mutate(Race_Ethnicity = case_when(
+    Hispanic == "Hispanic" ~ "Hispanic",
+    Hispanic == "Non-Hispanic White only" ~ "Non-Hispanic White",
+    Hispanic == "Non-Hispanic Black only" ~ "Non-Hispanic Black",
+    TRUE ~ "Non-Hispanic Other"
+  )) %>%
+  group_by(Race_Ethnicity) %>%
+  summarise(
+    Count = n()
+  ) %>%
+  mutate(
+    Percentage = (Count / sum(Count)) * 100
+  ) %>%
+  mutate(
+    Percentage = round(Percentage, 1)
+  ) %>%
+  arrange(desc(Percentage))
+
+race_summary
+
+#Marital status
+marital_summary <- clean_adult %>%
+  mutate(Marital_Group = case_when(
+    `Marital Status` %in% c("Never Married") ~ "Never married",
+    `Marital Status` %in% c("Married") ~ "Married/cohabiting",
+    `Marital Status` %in% c("Divorced", "Separated", "Widowed") ~ "Divorced/separated/widowed",
+    TRUE ~ "Other"
+  )) %>%
+  group_by(Marital_Group) %>%
+  summarise(
+    Count = n()
+  ) %>%
+  mutate(
+    Percentage = (Count / sum(Count)) * 100
+  ) %>%
+  mutate(
+    Percentage = round(Percentage, 1)
+  ) %>%
+  arrange(desc(Percentage))
+
+marital_summary
+
+
+#Education
+education_summary <- clean_adult %>%
+  mutate(Education = recode(Education,
+                            `0` = "Never attended", 
+                            `1` = "Grade 1-11",
+                            `2` = "12th grade, no diploma", 
+                            `3` = "GED or equivalent",
+                            `4` = "High School Graduate", 
+                            `5` = "Some college, no degree",
+                            `6` = "Associate degree: occupational, technical, or vocational program",
+                            `7` = "Associate degree: academic program",
+                            `8` = "Bachelor's degree",
+                            `9` = "Master's degree",
+                            `10` = "Professional School degree",
+                            `11` = "Doctoral degree",
+                            `97` = "Refused",
+                            `99` = "Don't Know",
+                            .default = NA_character_)) %>%
+  mutate(Education_Group = case_when(
+    Education %in% c("Never attended", "Grade 1-11", "12th grade, no diploma") ~ "< high school",
+    Education %in% c("GED or equivalent", "High School Graduate") ~ "High school or equivalent",
+    Education %in% c("Some college, no degree", 
+                     "Associate degree: occupational, technical, or vocational program",
+                     "Associate degree: academic program") ~ "Some college",
+    Education %in% c("Bachelor's degree", "Master's degree", 
+                     "Professional School degree", "Doctoral degree") ~ "≥ bachelor's degree",
+    Education %in% c("Refused", "Don't Know", NA_character_) ~ NA_character_  # Explicitly handle missing or invalid values
+  )) %>%
+  group_by(Education_Group) %>%
+  summarise(
+    Count = n()
+  ) %>%
+  mutate(
+    Percentage = (Count / sum(Count)) * 100,
+    Percentage = round(Percentage, 1)
+  ) %>%
+  arrange(desc(Percentage))
+
+education_summary
+
+#Health Status
+health_summary <- clean_adult %>%
+  group_by(`Health Status`) %>%
+  summarise(
+    Count = n()
+  ) %>%
+  mutate(
+    Percentage = (Count / sum(Count)) * 100
+  ) %>%
+  mutate(
+    Percentage = round(Percentage, 1)
+  ) %>%
+  arrange(desc(Percentage))
+
+health_summary
+
+#Recode the HOUYRSLIV_A variable and group into matching categories
+neighborhood_tenure_summary <- clean_adult %>%
+  mutate(Neighborhood_Tenure = case_when(
+    HOUYRSLIV_A %in% c(1, 2) ~ "≤ 3",
+    HOUYRSLIV_A == 3 ~ "4–10",
+    HOUYRSLIV_A == 4 ~ "11–20",
+    HOUYRSLIV_A %in% c(5) ~ "≥ 21",
+    HOUYRSLIV_A == 7 ~ "Refused",
+    HOUYRSLIV_A == 9 ~ "Don't Know",
+    TRUE ~ "Other"
+  )) %>%
+  group_by(Neighborhood_Tenure) %>%
+  summarise(
+    Count = n()
+  ) %>%
+  mutate(
+    Percentage = (Count / sum(Count)) * 100
+  ) %>%
+  mutate(
+    Percentage = round(Percentage, 1)
+  ) %>%
+  arrange(match(Neighborhood_Tenure, c("≤ 3", "4–10", "11–20", "≥ 21", "Refused", "Don't Know", "Other")))
+
+#Display the updated table
+neighborhood_tenure_summary
+
+```
+
+```{r}
+#Adjusted Odds Ration (Table 3)
+
+#Updated regression results with all sexual orientation categories
+results <- data.frame(
+  y.level = c(
+    "Bisexual", "Bisexual", "Bisexual", "Bisexual", "Bisexual",
+    "Gay/Lesbian", "Gay/Lesbian", "Gay/Lesbian", "Gay/Lesbian", "Gay/Lesbian",
+    "Something else", "Something else", "Something else", "Something else", "Something else",
+    "I don't know the answer", "I don't know the answer", "I don't know the answer", "I don't know the answer", "I don't know the answer",
+    "Refused", "Refused", "Refused", "Refused", "Refused"
+  ),
+  term = c(
+    "Delayed care due to cost", "Did not receive specific services because of the cost",
+    "Delayed or did not receive for non-cost reasons", "No usual source of care",
+    "Trouble paying medical bills", "Delayed care due to cost",
+    "Did not receive specific services because of the cost", "Delayed or did not receive for non-cost reasons",
+    "No usual source of care", "Trouble paying medical bills", "Delayed care due to cost",
+    "Did not receive specific services because of the cost", "Delayed or did not receive for non-cost reasons",
+    "No usual source of care", "Trouble paying medical bills", "Delayed care due to cost",
+    "Did not receive specific services because of the cost", "Delayed or did not receive for non-cost reasons",
+    "No usual source of care", "Trouble paying medical bills", "Delayed care due to cost",
+    "Did not receive specific services because of the cost", "Delayed or did not receive for non-cost reasons",
+    "No usual source of care", "Trouble paying medical bills"
+  ),
+  estimate = c(
+    0.405, 0.488, 0.936, -0.011, 0.084,
+    -0.112, 0.331, 0.304, -0.186, -0.299,
+    0.924, 0.251, 0.159, 0.194, 0.640,
+    0.137, 0.361, 0.776, 0.128, 0.194,
+    0.132, 0.228, 0.511, 0.114, 0.183
+  ),
+  std.error = c(
+    0.147, 0.145, 0.147, 0.140, 0.124,
+    0.165, 0.168, 0.165, 0.181, 0.170,
+    0.241, 0.249, 0.230, 0.267, 0.195,
+    0.320, 0.321, 0.273, 0.297, 0.267,
+    0.250, 0.260, 0.280, 0.290, 0.260
+  )
+)
+
+#Calculate Adjusted Odds Ratios and Confidence Intervals
+results$AOR <- exp(results$estimate)
+results$CI_Lower <- exp(results$estimate - 1.96 * results$std.error)
+results$CI_Upper <- exp(results$estimate + 1.96 * results$std.error)
+
+#Create a formatted table
+library(dplyr)
+formatted_table <- results %>%
+  select(y.level, term, AOR, CI_Lower, CI_Upper) %>%
+  arrange(term, y.level) %>%
+  mutate(CI = paste0("(", round(CI_Lower, 2), ", ", round(CI_Upper, 2), ")")) %>%
+  select(-CI_Lower, -CI_Upper) %>%
+  pivot_wider(names_from = y.level, values_from = c(AOR, CI)) %>%
+  rename_with(~ gsub("AOR_", "", .), starts_with("AOR_")) %>%
+  rename_with(~ gsub("CI_", "CI: ", .), starts_with("CI_"))
+
+
+formatted_table
+
+#Comparing Bisexual with Gay/Lesbian
+results <- data.frame(
+  y.level = c(
+    "Bisexual", "Bisexual", "Bisexual", "Bisexual", "Bisexual",
+    "Gay/Lesbian", "Gay/Lesbian", "Gay/Lesbian", "Gay/Lesbian", "Gay/Lesbian"
+  ),
+  term = c(
+    "Delayed care due to cost", "Did not receive specific services because of the cost",
+    "Delayed or did not receive for non-cost reasons", "No usual source of care",
+    "Trouble paying medical bills", "Delayed care due to cost",
+    "Did not receive specific services because of the cost", "Delayed or did not receive for non-cost reasons",
+    "No usual source of care", "Trouble paying medical bills"
+  ),
+  estimate = c(
+    0.405, 0.488, 0.936, -0.011, 0.084,
+    -0.112, 0.331, 0.304, -0.186, -0.299
+  ),
+  std.error = c(
+    0.147, 0.145, 0.147, 0.140, 0.124,
+    0.165, 0.168, 0.165, 0.181, 0.170
+  )
+)
+
+#Pivot to create separate columns for estimates and standard errors
+bisexual_estimates <- results %>% filter(y.level == "Bisexual") %>% select(term, estimate, std.error)
+gay_estimates <- results %>% filter(y.level == "Gay/Lesbian") %>% select(term, estimate, std.error)
+
+#Merge data for easier calculations
+comparison <- bisexual_estimates %>%
+  inner_join(gay_estimates, by = "term", suffix = c("_bisexual", "_gay"))
+
+#Calculate new log estimates and standard errors
+comparison <- comparison %>%
+  mutate(
+    new_estimate = estimate_bisexual - estimate_gay,
+    new_se = sqrt(std.error_bisexual^2 + std.error_gay^2),
+    AOR = exp(new_estimate),
+    CI_Lower = exp(new_estimate - 1.96 * new_se),
+    CI_Upper = exp(new_estimate + 1.96 * new_se)
+  ) %>%
+  select(term, AOR, CI_Lower, CI_Upper)
+
+#Print the results
+print(comparison)
+
+```
+
+
+```{r}
+#Two tailed significance test 
+#Bisexual individuals show statistical significance with the most predictors 
+
+summary_model <- summary(model)
+coefficients <- summary_model$coefficients
+std_errors <- summary_model$standard.errors
+
+#Compute z-values
+z_values <- coefficients / std_errors
+
+#Compute p-values
+p_values <- 2 * (1 - pnorm(abs(z_values)))
+
+p_values
+```
+
+```{r}
+#Calculate CIs 
+#Define the Z-value for 95% CI
+z_value <- 1.96
+
+#Calculate the prevalence of "Yes" responses for "Delayed care due to cost" with 95% CI
+prevalence_delayed_care <- clean_adult %>%
+  filter(!is.na(`Delayed care due to cost`)) %>%  
+  group_by(`Sexual Orientation`) %>%
+  summarise(
+    Count_Yes = sum(`Delayed care due to cost` == "Yes", na.rm = TRUE),  
+    Total = sum(!is.na(`Delayed care due to cost`)),  
+    Prevalence = (Count_Yes / Total) * 100,  
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,  
+    Lower_CI = Prevalence - z_value * SE, 
+    Upper_CI = Prevalence + z_value * SE  
+  )
+
+prevalence_delayed_care
+
+#Calculate the prevalence of "Yes" responses for "Did not receive specific services because of the cost" with 95% CI
+prevalence_didnotreceive_care <- clean_adult %>%
+  filter(!is.na(`Did not receive specific services because of the cost`)) %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(
+    Count_Yes = sum(`Did not receive specific services because of the cost` == "Yes", na.rm = TRUE),
+    Total = sum(!is.na(`Did not receive specific services because of the cost`)),
+    Prevalence = (Count_Yes / Total) * 100,
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,
+    Lower_CI = Prevalence - z_value * SE,
+    Upper_CI = Prevalence + z_value * SE
+  )
+
+prevalence_didnotreceive_care
+
+#Calculate the prevalence of "Yes" responses for "Delayed or did not receive for non-cost reasons" with 95% CI
+prevalence_noncost <- clean_adult %>%
+  filter(!is.na(`Delayed or did not receive for non-cost reasons`)) %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(
+    Count_Yes = sum(`Delayed or did not receive for non-cost reasons` == "Yes", na.rm = TRUE),
+    Total = sum(!is.na(`Delayed or did not receive for non-cost reasons`)),
+    Prevalence = (Count_Yes / Total) * 100,
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,
+    Lower_CI = Prevalence - z_value * SE,
+    Upper_CI = Prevalence + z_value * SE
+  )
+
+prevalence_noncost
+
+#Calculate the prevalence of "Yes" responses for "No usual source of care" with 95% CI
+prevalence_no_source_care <- clean_adult %>%
+  filter(!is.na(`No usual source of care`)) %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(
+    Count_Yes = sum(`No usual source of care` == "Yes", na.rm = TRUE),
+    Total = sum(!is.na(`No usual source of care`)),
+    Prevalence = (Count_Yes / Total) * 100,
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,
+    Lower_CI = Prevalence - z_value * SE,
+    Upper_CI = Prevalence + z_value * SE
+  )
+
+prevalence_no_source_care
+
+#Calculate the prevalence of "Yes" responses for "Trouble paying medical bills" with 95% CI
+prevalence_bills <- clean_adult %>%
+  filter(!is.na(`Trouble paying medical bills`)) %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(
+    Count_Yes = sum(`Trouble paying medical bills` == "Yes", na.rm = TRUE),
+    Total = sum(!is.na(`Trouble paying medical bills`)),
+    Prevalence = (Count_Yes / Total) * 100,
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,
+    Lower_CI = Prevalence - z_value * SE,
+    Upper_CI = Prevalence + z_value * SE
+  )
+
+prevalence_bills
+
+
+```
+
+```{r}
+#Descriptive Estimates (Table 1) with 95% CI
+
+z_value <- 1.96
+
+#Barriers to Care
+
+#Delayed care due to cost
+prevalence_delayed_care <- clean_adult %>%
+  filter(!is.na(`Delayed care due to cost`)) %>%
+  summarise(
+    Count_Yes = sum(`Delayed care due to cost` == "Yes", na.rm = TRUE),
+    Total = sum(!is.na(`Delayed care due to cost`)),
+    Prevalence = (Count_Yes / Total) * 100,
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,
+    Lower_CI = Prevalence - z_value * SE,
+    Upper_CI = Prevalence + z_value * SE
+  )
+print(prevalence_delayed_care)
+
+#Did not receive specific services because of the cost
+prevalence_didnotreceive_care <- clean_adult %>%
+  filter(!is.na(`Did not receive specific services because of the cost`)) %>%
+  summarise(
+    Count_Yes = sum(`Did not receive specific services because of the cost` == "Yes", na.rm = TRUE),
+    Total = sum(!is.na(`Did not receive specific services because of the cost`)),
+    Prevalence = (Count_Yes / Total) * 100,
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,
+    Lower_CI = Prevalence - z_value * SE,
+    Upper_CI = Prevalence + z_value * SE
+  )
+print(prevalence_didnotreceive_care)
+
+#Delayed or did not receive for non-cost reasons
+prevalence_noncost <- clean_adult %>%
+  filter(!is.na(`Delayed or did not receive for non-cost reasons`)) %>%
+  summarise(
+    Count_Yes = sum(`Delayed or did not receive for non-cost reasons` == "Yes", na.rm = TRUE),
+    Total = sum(!is.na(`Delayed or did not receive for non-cost reasons`)),
+    Prevalence = (Count_Yes / Total) * 100,
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,
+    Lower_CI = Prevalence - z_value * SE,
+    Upper_CI = Prevalence + z_value * SE
+  )
+print(prevalence_noncost)
+
+#No usual source of care
+prevalence_no_source_care <- clean_adult %>%
+  filter(!is.na(`No usual source of care`)) %>%
+  summarise(
+    Count_Yes = sum(`No usual source of care` == "Yes", na.rm = TRUE),
+    Total = sum(!is.na(`No usual source of care`)),
+    Prevalence = (Count_Yes / Total) * 100,
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,
+    Lower_CI = Prevalence - z_value * SE,
+    Upper_CI = Prevalence + z_value * SE
+  )
+print(prevalence_no_source_care)
+
+#Trouble paying medical bills
+prevalence_bills <- clean_adult %>%
+  filter(!is.na(`Trouble paying medical bills`)) %>%
+  summarise(
+    Count_Yes = sum(`Trouble paying medical bills` == "Yes", na.rm = TRUE),
+    Total = sum(!is.na(`Trouble paying medical bills`)),
+    Prevalence = (Count_Yes / Total) * 100,
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,
+    Lower_CI = Prevalence - z_value * SE,
+    Upper_CI = Prevalence + z_value * SE
+  )
+print(prevalence_bills)
+
+#Socio-Demographic Characteristics
+
+#Sexual Orientation 
+prevalence_sexual_orientation <- clean_adult %>%
+  mutate(`Sexual Orientation` = case_when(
+    is.na(`Sexual Orientation`) ~ "Missing",  
+    `Sexual Orientation` == "Refused" ~ "Refused",  
+    TRUE ~ `Sexual Orientation`  
+  )) %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(
+    Count = n(),  
+    Total = nrow(clean_adult),  
+    Prevalence = (Count / Total) * 100,  
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,  
+    Lower_CI = Prevalence - z_value * SE,  #Lower CI
+    Upper_CI = Prevalence + z_value * SE   #Upper CI
+  )
+
+print(prevalence_sexual_orientation)
+
+#Age
+prevalence_age <- clean_adult %>%
+  mutate(AGEP_A = as.numeric(AGEP_A)) %>%
+  filter(!is.na(AGEP_A) & AGEP_A <= 64) %>%
+  mutate(Age_Group = case_when(
+    AGEP_A >= 18 & AGEP_A <= 24 ~ "18-24",
+    AGEP_A >= 25 & AGEP_A <= 44 ~ "25-44",
+    AGEP_A >= 45 & AGEP_A <= 64 ~ "45-64",
+    TRUE ~ NA_character_
+  )) %>%
+  filter(!is.na(Age_Group)) %>%  
+  group_by(Age_Group) %>%
+  summarise(
+    Count = n(),  
+    Total = nrow(clean_adult),  
+    Prevalence = (Count / Total) * 100, 
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,  #SE
+    Lower_CI = Prevalence - z_value * SE, 
+    Upper_CI = Prevalence + z_value * SE   
+  )
+
+print(prevalence_age)
+
+
+#Race/Ethnicity
+prevalence_race <- clean_adult %>%
+  filter(!is.na(Hispanic)) %>%  
+  mutate(Race_Ethnicity = case_when(
+    Hispanic == "Hispanic" ~ "Hispanic",
+    Hispanic == "Non-Hispanic White only" ~ "Non-Hispanic White",
+    Hispanic == "Non-Hispanic Black only" ~ "Non-Hispanic Black",
+    TRUE ~ "Non-Hispanic Other"
+  )) %>%
+  group_by(Race_Ethnicity) %>%
+  summarise(
+    Count = n(), 
+    Total = nrow(clean_adult),  
+    Prevalence = (Count / Total) * 100, 
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,  #Standard Error
+    Lower_CI = Prevalence - z_value * SE,  #Lower Confidence Interval
+    Upper_CI = Prevalence + z_value * SE   #Upper Confidence Interval
+  )
+
+print(prevalence_race)
+
+#Marital Status
+prevalence_marital_status <- clean_adult %>%
+  filter(!is.na(`Marital Status`)) %>% 
+  mutate(Marital_Group = case_when(
+    `Marital Status` %in% c("Never Married") ~ "Never married",
+    `Marital Status` %in% c("Married") ~ "Married/cohabiting",
+    `Marital Status` %in% c("Divorced", "Separated", "Widowed") ~ "Divorced/separated/widowed",
+    TRUE ~ "Other"
+  )) %>%
+  group_by(Marital_Group) %>%
+  summarise(
+    Count = n(),  
+    Total = nrow(clean_adult),  
+    Prevalence = (Count / Total) * 100, 
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,  # Standard Error
+    Lower_CI = Prevalence - z_value * SE,  # Lower Confidence Interval
+    Upper_CI = Prevalence + z_value * SE   # Upper Confidence Interval
+  )
+
+print(prevalence_marital_status)
+
+
+#Neighborhood tenure
+prevalence_neighborhood <- clean_adult %>%
+  mutate(Neighborhood_Tenure = case_when(
+    HOUYRSLIV_A %in% c(1, 2) ~ "≤ 3",
+    HOUYRSLIV_A == 3 ~ "4–10",
+    HOUYRSLIV_A == 4 ~ "11–20",
+    HOUYRSLIV_A %in% c(5) ~ "≥ 21",
+    TRUE ~ "Other"
+  )) %>%
+  group_by(Neighborhood_Tenure) %>%
+  summarise(
+    Count = n(),  
+    Total = nrow(clean_adult), 
+    Prevalence = (Count / Total) * 100, 
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,  # SE
+    Lower_CI = Prevalence - z_value * SE,  # Lower CI
+    Upper_CI = Prevalence + z_value * SE   # Upper CI
+  )
+
+print(prevalence_neighborhood)
+
+#Health status
+prevalence_health <- clean_adult %>%
+  filter(!is.na(`Health Status`)) %>%
+  group_by(`Health Status`) %>%
+  summarise(
+    Count = n(),
+    Total = nrow(clean_adult),  # Use the total dataset size
+    Prevalence = (Count / Total) * 100,
+    SE = sqrt((Prevalence / 100) * (1 - (Prevalence / 100)) / Total) * 100,
+    Lower_CI = Prevalence - z_value * SE,
+    Upper_CI = Prevalence + z_value * SE
+  )
+print(prevalence_health)
+
+
+```
+```{r}
+#Gather Sample Sizes and Counts 
+
+#Delayed care due to cost 
+
+colnames(clean_adult)
+
+sample_sizes <- clean_adult %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(n = n(), .groups = "drop")
+
+raw_counts <- clean_adult %>%
+  filter(`Delayed care due to cost` == "Yes") %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(x = n(), .groups = "drop")
+
+counts_table <- merge(raw_counts, sample_sizes, by = "Sexual Orientation", all = TRUE)
+
+print(counts_table)
+
+
+#Did not receive due to cost
+colnames(clean_adult)
+
+sample_sizes <- clean_adult %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(n = n(), .groups = "drop")
+
+raw_counts <- clean_adult %>%
+  filter(`Did not receive specific services because of the cost` == "Yes") %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(x = n(), .groups = "drop")
+
+counts_table <- merge(raw_counts, sample_sizes, by = "Sexual Orientation", all = TRUE)
+
+print(counts_table)
+
+#Delayed or did not receive for non-cost reasons
+colnames(clean_adult)
+
+sample_sizes <- clean_adult %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(n = n(), .groups = "drop")
+
+raw_counts <- clean_adult %>%
+  filter(`Delayed or did not receive for non-cost reasons` == "Yes") %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(x = n(), .groups = "drop")
+
+counts_table <- merge(raw_counts, sample_sizes, by = "Sexual Orientation", all = TRUE)
+
+print(counts_table)
+
+
+
+# No usual source of care
+colnames(clean_adult)
+
+sample_sizes <- clean_adult %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(n = n(), .groups = "drop")
+
+raw_counts <- clean_adult %>%
+  filter(`No usual source of care` == "Yes") %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(x = n(), .groups = "drop")
+
+counts_table <- merge(raw_counts, sample_sizes, by = "Sexual Orientation", all = TRUE)
+
+print(counts_table)
+
+
+
+#Trouble paying medical bills
+colnames(clean_adult)
+
+sample_sizes <- clean_adult %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(n = n(), .groups = "drop")
+
+raw_counts <- clean_adult %>%
+  filter(`Trouble paying medical bills` == "Yes") %>%
+  group_by(`Sexual Orientation`) %>%
+  summarise(x = n(), .groups = "drop")
+
+counts_table <- merge(raw_counts, sample_sizes, by = "Sexual Orientation", all = TRUE)
+
+print(counts_table)
+```
+ 
+```{r}
+#Calculate Z-score and P-values for significance test 
+
+#Delayed care due to cost
+#Define the raw counts (x) and sample sizes (n)
+groups <- c("Straight", "Bisexual", "Gay/Lesbian", "I don't know the answer", "Something else")
+x_values <- c(4596, 267, 143, 49, 92)  # Number who delayed care due to cost
+n_values <- c(17461, 552, 486, 127, 168)  # Total sample sizes
+
+#Function to perform two-proportion z-test
+proportion_z_test <- function(x1, n1, x2, n2) {
+  #Sample proportions
+  p1 <- x1 / n1
+  p2 <- x2 / n2
+  
+  #Pooled proportion
+  p_hat <- (x1 + x2) / (n1 + n2)
+  
+  #Standard error
+  SE <- sqrt(p_hat * (1 - p_hat) * (1/n1 + 1/n2))
+  
+  #Z-score
+  z <- (p1 - p2) / SE
+  
+  #P-value (two-tailed test)
+  p_value <- 2 * (1 - pnorm(abs(z)))
+  
+  return(c(z, p_value))
+}
+
+#Run pairwise comparisons
+results <- data.frame(Group1 = character(), Group2 = character(), Z_score = numeric(), P_value = numeric())
+
+for (i in 1:(length(groups)-1)) {
+  for (j in (i+1):length(groups)) {
+    test_result <- proportion_z_test(x_values[i], n_values[i], x_values[j], n_values[j])
+    results <- rbind(results, data.frame(Group1 = groups[i], Group2 = groups[j], Z_score = test_result[1], P_value = test_result[2]))
+  }
+}
+
+#Print results
+print(results)
+
+
+
+
+
+#Did not receive due to cost
+
+#Define the raw counts (x) and sample sizes (n)
+groups <- c("Straight", "Bisexual", "Gay/Lesbian", "I don't know the answer", "Something else")
+x_values <- c(3995, 244, 136, 45, 72)  # Number who delayed care due to cost
+n_values <- c(17461, 552, 486, 127, 168)  # Total sample sizes
+
+#Function to perform two-proportion z-test
+proportion_z_test <- function(x1, n1, x2, n2) {
+  #Sample proportions
+  p1 <- x1 / n1
+  p2 <- x2 / n2
+  
+  #Pooled proportion
+  p_hat <- (x1 + x2) / (n1 + n2)
+  
+  #Standard error
+  SE <- sqrt(p_hat * (1 - p_hat) * (1/n1 + 1/n2))
+  
+  #Z-score
+  z <- (p1 - p2) / SE
+  
+  #P-value (two-tailed test)
+  p_value <- 2 * (1 - pnorm(abs(z)))
+  
+  return(c(z, p_value))
+}
+
+#Run pairwise comparisons
+results <- data.frame(Group1 = character(), Group2 = character(), Z_score = numeric(), P_value = numeric())
+
+for (i in 1:(length(groups)-1)) {
+  for (j in (i+1):length(groups)) {
+    test_result <- proportion_z_test(x_values[i], n_values[i], x_values[j], n_values[j])
+    results <- rbind(results, data.frame(Group1 = groups[i], Group2 = groups[j], Z_score = test_result[1], P_value = test_result[2]))
+  }
+}
+
+#Print results
+print(results)
+
+
+
+
+
+#Delayed or did not receive for non-cost reasons 
+groups <- c("Straight", "Bisexual", "Gay/Lesbian", "I don't know the answer", "Something else")
+x_values <- c(1221, 73, 35, 21, 21)  # Number who delayed care due to cost
+n_values <- c(17461, 552, 486, 127, 168)  # Total sample sizes
+
+#Function to perform two-proportion z-test
+proportion_z_test <- function(x1, n1, x2, n2) {
+  #Sample proportions
+  p1 <- x1 / n1
+  p2 <- x2 / n2
+  
+  #Pooled proportion
+  p_hat <- (x1 + x2) / (n1 + n2)
+  
+  #Standard error
+  SE <- sqrt(p_hat * (1 - p_hat) * (1/n1 + 1/n2))
+  
+  #Z-score
+  z <- (p1 - p2) / SE
+  
+  #P-value (two-tailed test)
+  p_value <- 2 * (1 - pnorm(abs(z)))
+  
+  return(c(z, p_value))
+}
+
+#Run pairwise comparisons
+results <- data.frame(Group1 = character(), Group2 = character(), Z_score = numeric(), P_value = numeric())
+
+for (i in 1:(length(groups)-1)) {
+  for (j in (i+1):length(groups)) {
+    test_result <- proportion_z_test(x_values[i], n_values[i], x_values[j], n_values[j])
+    results <- rbind(results, data.frame(Group1 = groups[i], Group2 = groups[j], Z_score = test_result[1], P_value = test_result[2]))
+  }
+}
+
+#Print results
+print(results)
+
+
+
+
+#No usual source of care
+#Define the raw counts (x) and sample sizes (n)
+groups <- c("Straight", "Bisexual", "Gay/Lesbian", "I don't know the answer", "Something else")
+x_values <- c(2417, 85, 51, 18, 30)  # Number who delayed care due to cost
+n_values <- c(17461, 552, 486, 127, 168)  # Total sample sizes
+
+#Function to perform two-proportion z-test
+proportion_z_test <- function(x1, n1, x2, n2) {
+  #Sample proportions
+  p1 <- x1 / n1
+  p2 <- x2 / n2
+  
+  #Pooled proportion
+  p_hat <- (x1 + x2) / (n1 + n2)
+  
+  #Standard error
+  SE <- sqrt(p_hat * (1 - p_hat) * (1/n1 + 1/n2))
+  
+  #Z-score
+  z <- (p1 - p2) / SE
+  
+  #P-value (two-tailed test)
+  p_value <- 2 * (1 - pnorm(abs(z)))
+  
+  return(c(z, p_value))
+}
+
+#Run pairwise comparisons
+results <- data.frame(Group1 = character(), Group2 = character(), Z_score = numeric(), P_value = numeric())
+
+for (i in 1:(length(groups)-1)) {
+  for (j in (i+1):length(groups)) {
+    test_result <- proportion_z_test(x_values[i], n_values[i], x_values[j], n_values[j])
+    results <- rbind(results, data.frame(Group1 = groups[i], Group2 = groups[j], Z_score = test_result[1], P_value = test_result[2]))
+  }
+}
+
+#Print results
+print(results)
+
+
+
+
+#Trouble paying medical bills
+#Define the raw counts (x) and sample sizes (n)
+groups <- c("Straight", "Bisexual", "Gay/Lesbian", "I don't know the answer", "Something else")
+x_values <- c(1964, 102, 47, 25, 46)  # Number who delayed care due to cost
+n_values <- c(17461, 552, 486, 127, 168)  # Total sample sizes
+
+#Function to perform two-proportion z-test
+proportion_z_test <- function(x1, n1, x2, n2) {
+  #Sample proportions
+  p1 <- x1 / n1
+  p2 <- x2 / n2
+  
+  #Pooled proportion
+  p_hat <- (x1 + x2) / (n1 + n2)
+  
+  #Standard error
+  SE <- sqrt(p_hat * (1 - p_hat) * (1/n1 + 1/n2))
+  
+  #Z-score
+  z <- (p1 - p2) / SE
+  
+  #P-value (two-tailed test)
+  p_value <- 2 * (1 - pnorm(abs(z)))
+  
+  return(c(z, p_value))
+}
+
+#Run pairwise comparisons
+results <- data.frame(Group1 = character(), Group2 = character(), Z_score = numeric(), P_value = numeric())
+
+for (i in 1:(length(groups)-1)) {
+  for (j in (i+1):length(groups)) {
+    test_result <- proportion_z_test(x_values[i], n_values[i], x_values[j], n_values[j])
+    results <- rbind(results, data.frame(Group1 = groups[i], Group2 = groups[j], Z_score = test_result[1], P_value = test_result[2]))
+  }
+}
+
+#Print results
+print(results)
+
+```
+```{r}
+#Calculate RSE = (SE/P) * 100 
+
+
+#Delayed care due to cost 
+data <- data.frame(
+  Sexual_Orientation = c("Straight", "Bisexual", "Gay/Lesbian", "I don't know the answer", "Something else"),
+  Prevalence = c(36.44148, 56.68790, 37.23958, 50.00000, 62.16216),
+  SE = c(0.4285415, 2.2831758, 2.4670600, 5.0507627, 3.9865329)
+)
+
+#Calculate RSE
+data <- data %>%
+  mutate(
+    RSE = (SE / Prevalence) * 100,
+    Interpretation = case_when(
+      RSE >= 50 ~ "RSE ≥ 50% (Unreliable estimate)",
+      RSE >= 30 & RSE < 50 ~ "Interpret with caution (30% ≤ RSE < 50%)",
+      TRUE ~ "Acceptable RSE (< 30%)"
+    )
+  )
+
+#Print results
+print(data)
+
+
+
+#Did not receive due to cost 
+data <- data.frame(
+  Sexual_Orientation = c("Straight", "Bisexual", "Gay/Lesbian", "I don't know the answer", "Something else"),
+  Prevalence = c(22.87956, 44.20290, 27.98354, 35.43307, 42.85714),
+  SE = c(0.3178879, 2.1137891, 2.0363343, 4.2443149, 3.8180177)
+)
+
+#Calculate RSE
+data <- data %>%
+  mutate(
+    RSE = (SE / Prevalence) * 100,
+    Interpretation = case_when(
+      RSE >= 50 ~ "RSE ≥ 50% (Unreliable estimate)",
+      RSE >= 30 & RSE < 50 ~ "Interpret with caution (30% ≤ RSE < 50%)",
+      TRUE ~ "Acceptable RSE (< 30%)"
+    )
+  )
+
+#Print results
+print(data)
+
+
+
+
+#Did not receive for non-cost reasons 
+data <- data.frame(
+  Sexual_Orientation = c("Straight", "Bisexual", "Gay/Lesbian", "I don't know the answer", "Something else"),
+  Prevalence = c(6.992727, 13.224638, 7.201646, 16.535433, 12.500000),
+  SE = c(0.1929955, 1.4418516, 1.1726486, 3.2965297, 2.5515518)
+)
+
+#Calculate RSE
+data <- data %>%
+  mutate(
+    RSE = (SE / Prevalence) * 100,
+    Interpretation = case_when(
+      RSE >= 50 ~ "RSE ≥ 50% (Unreliable estimate)",
+      RSE >= 30 & RSE < 50 ~ "Interpret with caution (30% ≤ RSE < 50%)",
+      TRUE ~ "Acceptable RSE (< 30%)"
+    )
+  )
+
+#Print results
+print(data)
+
+
+
+
+#No usual source of care
+data <- data.frame(
+  Sexual_Orientation = c("Straight", "Bisexual", "Gay/Lesbian", "I don't know the answer", "Something else"),
+  Prevalence = c(13.84228, 15.39855, 10.49383, 14.17323, 17.85714),
+  SE = c(0.2613463, 1.5362408, 1.3901937, 3.0948808, 2.9548555)
+)
+
+#Calculate RSE
+data <- data %>%
+  mutate(
+    RSE = (SE / Prevalence) * 100,
+    Interpretation = case_when(
+      RSE >= 50 ~ "RSE ≥ 50% (Unreliable estimate)",
+      RSE >= 30 & RSE < 50 ~ "Interpret with caution (30% ≤ RSE < 50%)",
+      TRUE ~ "Acceptable RSE (< 30%)"
+    )
+  )
+
+#Print results
+print(data)
+
+
+
+
+#Trouble paying medical bills
+data <- data.frame(
+  Sexual_Orientation = c("Straight", "Bisexual", "Gay/Lesbian", "I don't know the answer", "Something else"),
+  Prevalence = c(11.247924, 18.478261, 9.670782, 19.685039, 27.380952),
+  SE = c(0.2391062, 1.6519531, 1.3406851, 3.5282919, 3.4402889)
+)
+
+#Calculate RSE
+data <- data %>%
+  mutate(
+    RSE = (SE / Prevalence) * 100,
+    Interpretation = case_when(
+      RSE >= 50 ~ "RSE ≥ 50% (Unreliable estimate)",
+      RSE >= 30 & RSE < 50 ~ "Interpret with caution (30% ≤ RSE < 50%)",
+      TRUE ~ "Acceptable RSE (< 30%)"
+    )
+  )
+
+#Print results
+print(data)
+```
+
+
